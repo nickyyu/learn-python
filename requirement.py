@@ -1,115 +1,232 @@
-from PySide6.QtWidgets import QFormLayout, QDateEdit
-from PySide6.QtCore import QDate
+/* ================================
+   全局字体
+================================ */
 
-class ReqEditDialog(QDialog):
-    def __init__(self, db, data=None):
-        super().__init__()
-        self.db = db
-        self.original_data = data  # 如果 data 不为空，则是修改模式
-        self.setWindowTitle("编辑需求" if data else "新增需求")
-        self.setMinimumWidth(450)
-        self.init_ui()
-        
-        if data:
-            self.fill_data(data)
+* {
+    font-family: "Microsoft YaHei";
+    font-size: 14px;
+}
 
-    def init_ui(self):
-        layout = QVBoxLayout(self)
-        form_layout = QFormLayout()
 
-        # 输入控件
-        self.edit_id = QLineEdit()
-        if self.original_data: self.edit_id.setEnabled(False) # 修改时主键通常不许变
-        
-        self.edit_title = QLineEdit()
-        self.edit_status = QComboBox()
-        self.edit_status.addItems(["待处理", "进行中", "已完成", "已发布"])
-        
-        # 使用 QDateEdit 优化日期输入
-        self.edit_dev_time = QDateEdit(calendarPopup=True)
-        self.edit_dev_time.setDate(QDate.currentDate())
-        self.edit_uat_time = QDateEdit(calendarPopup=True)
-        self.edit_online_time = QDateEdit(calendarPopup=True)
-        
-        self.edit_uat_branch = QLineEdit()
-        self.edit_pre_branch = QLineEdit()
+/* ================================
+   主窗口
+================================ */
 
-        form_layout.addRow("需求编号 *:", self.edit_id)
-        form_layout.addRow("标题 *:", self.edit_title)
-        form_layout.addRow("当前状态:", self.edit_status)
-        form_layout.addRow("开发完成时间:", self.edit_dev_time)
-        form_layout.addRow("UAT完成时间:", self.edit_uat_time)
-        form_layout.addRow("上线时间:", self.edit_online_time)
-        form_layout.addRow("UAT测试分支:", self.edit_uat_branch)
-        form_layout.addRow("PRE测试分支:", self.edit_pre_branch)
+QMainWindow {
+    background-color: #f5f7fa;
+}
 
-        layout.addLayout(form_layout)
 
-        btn_save = QPushButton("提交保存")
-        btn_save.setStyleSheet("background-color: #28a745; color: white; height: 35px;")
-        btn_save.clicked.connect(self.save_data)
-        layout.addWidget(btn_save)
+/* ================================
+   按钮
+================================ */
 
-    def fill_data(self, data):
-        """如果是修改模式，将现有数据填入表单"""
-        # 注意：data 的索引取决于你数据库 SELECT 的顺序
-        self.edit_id.setText(data[0])
-        self.edit_title.setText(data[1])
-        self.edit_status.setCurrentText(data[2])
-        # 将文本日期转为 QDate
-        if data[3]: self.edit_dev_time.setDate(QDate.fromString(data[3], "yyyy-MM-dd"))
-        if data[4]: self.edit_uat_time.setDate(QDate.fromString(data[4], "yyyy-MM-dd"))
-        if data[5]: self.edit_online_time.setDate(QDate.fromString(data[5], "yyyy-MM-dd"))
-        self.edit_uat_branch.setText(data[6])
-        self.edit_pre_branch.setText(data[7])
+QPushButton {
+    background-color: #409EFF;
+    color: white;
+    border-radius: 6px;
+    padding: 6px 16px;
+    min-height: 30px;
+}
 
-    def save_data(self):
-        # 组装数据
-        fields = (
-            self.edit_title.text(),
-            self.edit_status.currentText(),
-            self.edit_dev_time.date().toString("yyyy-MM-dd"),
-            self.edit_uat_time.date().toString("yyyy-MM-dd"),
-            self.edit_online_time.date().toString("yyyy-MM-dd"),
-            self.edit_uat_branch.text(),
-            self.edit_pre_branch.text(),
-            self.edit_id.text() # 作为 WHERE 条件的 ID 放在最后
-        )
+QPushButton:hover {
+    background-color: #66b1ff;
+}
 
-        cursor = self.db.conn.cursor()
-        try:
-            if self.original_data:
-                # 执行修改
-                sql = '''UPDATE requirements SET 
-                         title=?, status=?, dev_time=?, uat_time=?, online_time=?, uat_branch=?, pre_branch=? 
-                         WHERE req_id=?'''
-                cursor.execute(sql, fields)
-            else:
-                # 执行新增 (这里需要重新排下序，因为 INSERT 的顺序和 UPDATE 不同)
-                sql = '''INSERT INTO requirements 
-                         (title, status, dev_time, uat_time, online_time, uat_branch, pre_branch, req_id) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)'''
-                cursor.execute(sql, fields)
-            
-            self.db.conn.commit()
-            self.accept()
-        except Exception as e:
-            QMessageBox.critical(self, "保存失败", str(e))
-			
-			
-# 在 MainWindow 的 init_ui 中添加
-self.table.itemDoubleClicked.connect(self.on_table_double_clicked)
+QPushButton:pressed {
+    background-color: #3a8ee6;
+}
 
-def on_table_double_clicked(self, item):
-    # 1. 获取双击那一行的需求编号 (假设第一列是编号)
-    row = item.row()
-    req_id = self.table.item(row, 0).text()
-    
-    # 2. 从数据库获取详情
-    full_data = self.db.get_req_detail(req_id)
-    
-    # 3. 弹出对话框（传入数据即为修改模式）
-    if full_data:
-        dialog = ReqEditDialog(self.db, data=full_data)
-        if dialog.exec() == QDialog.Accepted:
-            self.load_table_data() # 刷新主表
+QPushButton:disabled {
+    background-color: #c0c4cc;
+}
+
+
+/* 次要按钮 */
+
+QPushButton#secondary {
+    background-color: white;
+    color: #606266;
+    border: 1px solid #dcdfe6;
+}
+
+QPushButton#secondary:hover {
+    background-color: #ecf5ff;
+    color: #409EFF;
+}
+
+
+/* 危险按钮 */
+
+QPushButton#danger {
+    background-color: #f56c6c;
+}
+
+QPushButton#danger:hover {
+    background-color: #f78989;
+}
+
+
+/* ================================
+   输入框
+================================ */
+
+QLineEdit {
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 5px 8px;
+    min-height: 28px;
+    background: white;
+}
+
+QLineEdit:focus {
+    border: 1px solid #409EFF;
+}
+
+
+/* ================================
+   下拉框
+================================ */
+
+QComboBox {
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    min-height: 28px;
+    background: white;
+}
+
+QComboBox:hover {
+    border: 1px solid #409EFF;
+}
+
+QComboBox::drop-down {
+    border: none;
+}
+
+
+/* ================================
+   表格
+================================ */
+
+QTableWidget {
+    border: 1px solid #ebeef5;
+    background: white;
+    gridline-color: #ebeef5;
+    selection-background-color: #ecf5ff;
+}
+
+QTableWidget::item {
+    padding: 6px;
+}
+
+QTableWidget::item:selected {
+    background-color: #ecf5ff;
+    color: #303133;
+}
+
+
+/* ================================
+   表头
+================================ */
+
+QHeaderView::section {
+    background-color: #f5f7fa;
+    border: none;
+    border-bottom: 1px solid #ebeef5;
+    padding: 6px;
+    font-weight: bold;
+}
+
+
+/* ================================
+   Tab
+================================ */
+
+QTabWidget::pane {
+    border: 1px solid #dcdfe6;
+}
+
+QTabBar::tab {
+    background: #f5f7fa;
+    padding: 8px 16px;
+}
+
+QTabBar::tab:selected {
+    background: white;
+    border-bottom: 2px solid #409EFF;
+}
+
+
+/* ================================
+   ScrollBar
+================================ */
+
+QScrollBar:vertical {
+    border: none;
+    background: #f0f0f0;
+    width: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background: #c0c4cc;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #909399;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0;
+}
+
+
+/* ================================
+   分组框
+================================ */
+
+QGroupBox {
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px;
+}
+
+
+/* ================================
+   ToolBar
+================================ */
+
+QToolBar {
+    background: white;
+    border-bottom: 1px solid #ebeef5;
+}
+
+
+/* ================================
+   菜单
+================================ */
+
+QMenuBar {
+    background: white;
+}
+
+QMenuBar::item:selected {
+    background: #ecf5ff;
+}
+
+QMenu {
+    background: white;
+    border: 1px solid #ebeef5;
+}
+
+QMenu::item:selected {
+    background: #ecf5ff;
+}
