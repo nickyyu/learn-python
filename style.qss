@@ -1,0 +1,107 @@
+/* 全局基础设置 */
+QWidget {
+    background-color: #1E1E1E;
+    color: #D4D4D4;
+    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+}
+
+/* 左侧需求列表 */
+QListWidget {
+    background-color: #252526;
+    border: none;
+    outline: none;
+    padding: 5px;
+}
+
+QListWidget::item {
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+
+QListWidget::item:hover {
+    background-color: #2A2D2E;
+}
+
+QListWidget::item:selected {
+    background-color: #37373D;
+    color: #FFFFFF;
+    border-left: 4px solid #007ACC; /* 选中时左侧蓝条 */
+}
+
+/* 右侧项目卡片 (ProjectCard) */
+#ProjectCard {
+    background-color: #252526;
+    border: 1px solid #3E3E42;
+    border-radius: 8px;
+    margin: 10px;
+}
+
+#ProjectCard:hover {
+    border: 1px solid #007ACC; /* 悬停时边框变蓝 */
+}
+
+/* 按钮设计 */
+QPushButton {
+    background-color: #0E639C;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #1177BB;
+}
+
+QPushButton:pressed {
+    background-color: #0D5281;
+}
+
+QPushButton:disabled {
+    background-color: #333333;
+    color: #808080;
+}
+
+/* “追加项目”等辅助按钮 */
+#SecondaryButton {
+    background-color: #3A3D41;
+}
+
+#SecondaryButton:hover {
+    background-color: #45494E;
+}
+
+/* 滚动条美化 */
+QScrollBar:vertical {
+    border: none;
+    background: #1E1E1E;
+    width: 10px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: #3E3E42;
+    min-height: 20px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #4F4F54;
+}
+
+/* 日志控制台 (QTextEdit) */
+QTextEdit#LogConsole {
+    background-color: #000000;
+    color: #4EC9B0; /* 极客绿文字 */
+    font-family: "Consolas", "Monaco", monospace;
+    border: 1px solid #3E3E42;
+    padding: 10px;
+}
+
+/* 状态标签 (Status Labels) */
+QLabel#StatusMerged { color: #4EC9B0; font-weight: bold; } /* 成功绿 */
+QLabel#StatusReview { color: #CE9178; font-weight: bold; } /* 警告橙 */
+QLabel#StatusDev { color: #007ACC; font-weight: bold; }    /* 开发蓝 */
